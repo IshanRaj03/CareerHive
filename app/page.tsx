@@ -2,6 +2,7 @@ import React from "react";
 import { BackgroundLines } from "@/components/ui/background-lines";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { Button } from "@/components/ui/moving-border";
+import Link from "next/link";
 
 export default function Home() {
   const words = `CareerHive uses AI to deliver personalized job recommendations
@@ -24,12 +25,14 @@ export default function Home() {
         </div>
       </div>
       <div className="">
-        <Button
-          borderRadius="1.75rem"
-          className=" bg-black dark:bg-slate-900 text-xl text-white dark:text-white border-neutral-600 dark:border-slate-800"
-        >
-          Get Started
-        </Button>
+        <Link href="/upload">
+          <Button
+            borderRadius="1.75rem"
+            className=" bg-black dark:bg-slate-900 text-xl text-white dark:text-white border-neutral-600 dark:border-slate-800"
+          >
+            Get Started
+          </Button>
+        </Link>
       </div>
     </BackgroundLines>
   );
