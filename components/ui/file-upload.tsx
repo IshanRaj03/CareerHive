@@ -35,11 +35,15 @@ export const FileUpload = ({
 
   const handleFileChange = (newFiles: File[]) => {
     setFiles(newFiles);
-    onChange && onChange(newFiles);
+    if (onChange) {
+      onChange(newFiles);
+    }
   };
 
   const handleClick = () => {
-    fileInputRef.current?.click();
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
   };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -64,7 +68,7 @@ export const FileUpload = ({
           type="file"
           onChange={(e) => handleFileChange(Array.from(e.target.files || []))}
           className="hidden"
-          {...getInputProps()} // Ensure inputProps from useDropzone are included
+          {...getInputProps()}
         />
         <div className="absolute inset-0 [mask-image:radial-gradient(ellipse_at_center,white,transparent)]">
           <GridPattern />

@@ -39,6 +39,7 @@ export function Button({
       style={{
         borderRadius: borderRadius,
       }}
+      onClick={onClick}
       {...otherProps}
     >
       <div

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { motion, stagger, useAnimate } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -16,7 +16,8 @@ export const TextGenerateEffect = ({
 }) => {
   const [scope, animate] = useAnimate();
   const wordsArray = words.split(" ");
-  useEffect(() => {
+
+  const animateText = useCallback(() => {
     animate(
       "span",
       {
@@ -28,7 +29,11 @@ export const TextGenerateEffect = ({
         delay: stagger(0.08),
       }
     );
-  }, [scope.current]);
+  }, [animate, filter, duration]);
+
+  useEffect(() => {
+    animateText();
+  }, [animateText]);
 
   const renderWords = () => {
     return (
@@ -53,7 +58,7 @@ export const TextGenerateEffect = ({
   return (
     <div className={cn("font-bold", className)}>
       <div className="mt-4">
-        <div className=" dark:text-white text-white text-2xl leading-snug tracking-wide">
+        <div className="dark:text-white text-white text-2xl leading-snug tracking-wide">
           {renderWords()}
         </div>
       </div>
