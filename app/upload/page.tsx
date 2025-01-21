@@ -5,7 +5,7 @@ import { LampContainer } from "@/components/ui/lamp";
 import { FileUpload } from "@/components/ui/file-upload";
 import { Button } from "@/components/ui/moving-border";
 
-const uploadPage = () => {
+const UploadPage = () => {
   const [files, setFiles] = useState<File[]>([]);
   const handleFileUpload = (files: File[]) => {
     setFiles(files);
@@ -38,4 +38,4 @@ const uploadPage = () => {
   );
 };
 
-export default uploadPage;
+export default UploadPage;
