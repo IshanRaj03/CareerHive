@@ -19,6 +19,7 @@ export function Button({
   duration,
   className,
   onClick,
+  disabled = false, // New disabled prop
   ...otherProps
 }: {
   borderRadius?: string;
@@ -29,17 +30,20 @@ export function Button({
   duration?: number;
   className?: string;
   onClick?: () => void;
+  disabled?: boolean; // New disabled prop type
 }) {
   return (
     <Component
       className={cn(
-        "bg-transparent relative text-xl  h-16 w-40 p-[1px] overflow-hidden ",
-        containerClassName
+        "bg-transparent relative text-xl h-16 w-40 p-[1px] overflow-hidden",
+        containerClassName,
+        disabled ? "cursor-not-allowed opacity-50" : "" // Add disabled styling
       )}
       style={{
         borderRadius: borderRadius,
       }}
-      onClick={onClick}
+      onClick={!disabled ? onClick : undefined} // Prevent clicks when disabled
+      disabled={disabled} // Native disabled attribute
       {...otherProps}
     >
       <div

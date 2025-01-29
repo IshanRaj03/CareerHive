@@ -4,13 +4,49 @@ import { motion } from "framer-motion";
 import { LampContainer } from "@/components/ui/lamp";
 import { FileUpload } from "@/components/ui/file-upload";
 import { Button } from "@/components/ui/moving-border";
+import { ResumeSummary } from "@/lib/summarization/index";
+import axios from "axios";
+// import PdfParse from "pdf-parse";
 
 const UploadPage = () => {
   const [files, setFiles] = useState<File[]>([]);
-  const handleFileUpload = (files: File[]) => {
-    setFiles(files);
-    console.log(files);
+  const [summary, setSummary] = useState<ResumeSummary | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleFileUpload = (uploadedFiles: File[]) => {
+    setFiles(uploadedFiles);
+    // console.log(uploadedFiles);
   };
+
+  const handleUpload = async () => {
+    if (files.length === 0) {
+      alert("Please select a file to upload.");
+      return;
+    }
+
+    const file = files[0];
+
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const data = new FormData();
+      data.set("file", file);
+
+      const res = await axios.post("/api/summarize", data);
+      console.log(res.data);
+
+      if (res.status === 200) {
+        setIsLoading(false);
+      }
+    } catch (err) {
+      console.error("Error preparing file:", err);
+      setError("An error occurred while preparing the file.");
+      setIsLoading(false);
+    }
+  };
+
   return (
     <LampContainer>
       <motion.h1
@@ -28,9 +64,10 @@ const UploadPage = () => {
           <Button
             borderRadius="1.75rem"
             className=" bg-black text-xl text-white border-neutral-800 "
-            onClick={() => console.log(files)}
+            onClick={handleUpload}
+            disabled={isLoading}
           >
-            Upload
+            {isLoading ? "Processing..." : "Upload"}
           </Button>
         </div>
       </motion.h1>
