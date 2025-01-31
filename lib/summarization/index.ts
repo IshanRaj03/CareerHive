@@ -11,6 +11,7 @@ export type ResumeSummary = {
   education?: { degree: string; institution: string; year: string }[];
   workExperience?: { company: string; position: string; duration: string }[];
   certifications?: string[];
+  experienceLevel: string;
 };
 
 // Extrxt text from PDF using Langchain PDFLoader
@@ -60,7 +61,11 @@ export async function summarizeText(text: string): Promise<ResumeSummary> {
     - Education (degree, institution, year)
     - Work Experience (company, position, duration)
     - Certifications
+    - Experience Level
     
+
+    The Experience Level and Location should not be null, experience level should be one of the following: internship, entry level, associate, senior, director, executive.
+
     Resume text will be provided in the next message.
     Provide the output as structured JSON format.
     `,

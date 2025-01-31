@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
 
   const text = await extractTextFromPDF(data);
 
-  const summary = await summarizeText(text);
+  const summary: ResumeSummary = await summarizeText(text);
   console.log("Resume Summary:", summary);
   return NextResponse.json({ message: "File uploaded successfully." });
 }
