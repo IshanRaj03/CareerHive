@@ -1,5 +1,8 @@
-import { ChatOpenAI } from "@langchain/openai";
 import { NextRequest, NextResponse } from "next/server";
+import {
+  fetchjobswithlocation,
+  fetchjobswithoutlocation,
+} from "@/lib/fetchJobs/index";
 
 import {
   ResumeSummary,
@@ -14,5 +17,26 @@ export async function POST(req: NextRequest) {
 
   const summary: ResumeSummary = await summarizeText(text);
   console.log("Resume Summary:", summary);
-  return NextResponse.json({ message: "File uploaded successfully." });
+
+  const fetchJobsWithLocation = await fetchjobswithlocation({
+    keyword: summary.keyword,
+    experienceLevel: summary.experienceLevel,
+    location: summary.location,
+  });
+
+  const fetchJobsWithoutLocation = await fetchjobswithoutlocation({
+    keyword: summary.keyword,
+    experienceLevel: summary.experienceLevel,
+  });
+
+  const jobs = [
+    ...(fetchJobsWithLocation || []),
+    ...(fetchJobsWithoutLocation || []),
+  ];
+
+  console.log("Jobs:", jobs);
+
+  return NextResponse.json({
+    message: "Your Resume is successfully precessed",
+  });
 }

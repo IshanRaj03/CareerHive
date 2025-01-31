@@ -1,5 +1,3 @@
-import axios from "axios";
-import { input, s } from "framer-motion/client";
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 
@@ -12,6 +10,8 @@ export type ResumeSummary = {
   workExperience?: { company: string; position: string; duration: string }[];
   certifications?: string[];
   experienceLevel: string;
+  keyword: string;
+  location: string;
 };
 
 // Extrxt text from PDF using Langchain PDFLoader
@@ -62,9 +62,14 @@ export async function summarizeText(text: string): Promise<ResumeSummary> {
     - Work Experience (company, position, duration)
     - Certifications
     - Experience Level
+    - keyword
+    - location
     
 
     The Experience Level and Location should not be null, experience level should be one of the following: internship, entry level, associate, senior, director, executive.
+    The keyword is like the field which you need to find from the experience or the projects, like software engineering, data science,full stack developer, frontend developer, backend developer, etc., and also it should not be null.
+    The location should be the country of the person, you can get the location from the educational institute or the work experience, and also I should not be null. 
+
 
     Resume text will be provided in the next message.
     Provide the output as structured JSON format.

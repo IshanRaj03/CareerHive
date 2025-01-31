@@ -35,7 +35,6 @@ const UploadPage = () => {
       data.set("file", file);
 
       const res = await axios.post("/api/summarize", data);
-      console.log(res.data);
 
       if (res.status === 200) {
         setIsLoading(false);
@@ -67,7 +66,7 @@ const UploadPage = () => {
             onClick={handleUpload}
             disabled={isLoading}
           >
-            {isLoading ? "Processing..." : "Upload"}
+            {isLoading ? "Processing your resume....." : "Upload"}
           </Button>
         </div>
       </motion.h1>
