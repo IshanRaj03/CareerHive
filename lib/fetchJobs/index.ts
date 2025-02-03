@@ -1,5 +1,3 @@
-import exp from "constants";
-
 const linkedIn = require("linkedin-jobs-api");
 
 type LinkedInJob = {

@@ -4,15 +4,13 @@ import { motion } from "framer-motion";
 import { LampContainer } from "@/components/ui/lamp";
 import { FileUpload } from "@/components/ui/file-upload";
 import { Button } from "@/components/ui/moving-border";
-import { ResumeSummary } from "@/lib/summarization/index";
 import axios from "axios";
 // import PdfParse from "pdf-parse";
 
 const UploadPage = () => {
   const [files, setFiles] = useState<File[]>([]);
-  const [summary, setSummary] = useState<ResumeSummary | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  // const [error, setError] = useState<string | null>(null);
 
   const handleFileUpload = (uploadedFiles: File[]) => {
     setFiles(uploadedFiles);
@@ -29,7 +27,7 @@ const UploadPage = () => {
 
     try {
       setIsLoading(true);
-      setError(null);
+      // setError(null);
 
       const data = new FormData();
       data.set("file", file);
@@ -41,7 +39,7 @@ const UploadPage = () => {
       }
     } catch (err) {
       console.error("Error preparing file:", err);
-      setError("An error occurred while preparing the file.");
+      // setError("An error occurred while preparing the file.");
       setIsLoading(false);
     }
   };
