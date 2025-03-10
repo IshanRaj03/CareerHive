@@ -1,19 +1,7 @@
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 
-export type ResumeSummary = {
-  name?: string;
-  email?: string;
-  phone?: string;
-  skills?: string[];
-  education?: { degree: string; institution: string; year: string }[];
-  workExperience?: { company: string; position: string; duration: string }[];
-  certifications?: string[];
-  experienceLevel: string;
-  keyword: string;
-  location: string;
-};
-
+import { ResumeSummary } from "@/lib/types";
 // Extrxt text from PDF using Langchain PDFLoader
 export async function extractTextFromPDF(formData: FormData): Promise<string> {
   try {
@@ -67,9 +55,12 @@ export async function summarizeText(text: string): Promise<ResumeSummary> {
     
 
     The Experience Level and Location should not be null, experience level should be one of the following: internship, entry level, associate, senior, director, executive.
+    
+    If you find that the user who's resume you are summarizing is a student, i.e he/she is still in college in their 2nd or 3rd year, and you can get the duration of course from the degree or assume 4 years, then the experience level should be internship.
+    
     The keyword is like the field which you need to find from the experience or the projects, like software engineering, data science,full stack developer, frontend developer, backend developer, etc., and also it should not be null.
-    The location should be the country of the person, you can get the location from the educational institute or the work experience, and also I should not be null. 
-
+    
+    The location should be the country of the person, you can get the location from the educational institute or the work experience, and also I should not be null.
 
     Resume text will be provided in the next message.
     Provide the output as structured JSON format.

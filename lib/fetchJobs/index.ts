@@ -27,7 +27,7 @@ export async function fetchjobswithlocation({
     dateSincePosted: "past Week",
     experienceLevel,
     location,
-    limit: 15,
+    limit: 35,
   };
 
   try {

@@ -1,26 +1,36 @@
 import prisma from "@/lib/db";
-type Job = {
-  position: string;
-  company: string;
-  companyLogo: string;
-  location: string;
-  date: string;
-  agoTime: string;
-  salary: string;
-  jobUrl: string;
-};
-type Jobs = Job[];
-export async function createJob(jobs: Jobs) {
-  jobs.forEach(async (job) => {
+
+import { Jobs } from "@/lib/types";
+
+export async function updatePineConeId(id: string, pineconeId: string) {
+  try {
+    await prisma.job.update({
+      where: {
+        id,
+      },
+      data: {
+        pineconeId,
+      },
+    });
+  } catch (error) {
+    console.error("Error updating PineCone ID:", error);
+  }
+}
+
+export async function createJob(jobs: Jobs, resumeId: number) {
+  const userId = JSON.stringify(resumeId);
+  jobs.map(async (job) => {
     try {
       const j = await prisma.job.findMany({
         where: {
           jobUrl: job.jobUrl,
+          userid: userId,
         },
       });
-      if (!j) {
+      if (j.length === 0) {
         await prisma.job.create({
           data: {
+            userid: userId,
             position: job.position,
             company: job.company,
             companyLogo: job.companyLogo,
@@ -50,6 +60,44 @@ export async function removeJob(id: string) {
   }
 }
 
+// export async function removeOldJobs() {
+//   try {
+//     const dateThreshold = new Date();
+//     dateThreshold.setDate(dateThreshold.getDate() - 30);
+
+//     const dateThresholdString = dateThreshold.toISOString().split("T")[0];
+
+//     const oldJobs = await prisma.job.findMany({
+//       where: {
+//         jobPostedDate: {
+//           lt: dateThresholdString,
+//         },
+//       },
+//       select: {
+//         id: true,
+//       },
+//     });
+//     if (oldJobs.length > 0) {
+//       oldJobs.forEach(async (job) => {
+//         if (!job.id) {
+//           return;
+//         }
+//         try {
+//           await prisma.job.delete({
+//             where: {
+//               id: job.id,
+//             },
+//           });
+//         } catch (error) {
+//           console.error("Error deleting job:", error);
+//         }
+//       });
+//     }
+//   } catch (error) {
+//     console.error("Error deleting old jobs:", error);
+//   }
+// }
+
 export async function removeOldJobs() {
   try {
     const dateThreshold = new Date();
@@ -68,7 +116,8 @@ export async function removeOldJobs() {
       },
     });
 
-    oldJobs.forEach(async (job) => {
+    for (const job of oldJobs) {
+      if (!job.id) continue; // Skip if ID is missing
       try {
         await prisma.job.delete({
           where: {
@@ -76,10 +125,23 @@ export async function removeOldJobs() {
           },
         });
       } catch (error) {
-        console.error("Error deleting job:", error);
+        console.error(`Error deleting job with ID ${job.id}:`, error);
       }
-    });
+    }
   } catch (error) {
-    console.error("Error deleting old jobs:", error);
+    console.error("Error fetching old jobs:", error);
+  }
+}
+
+export async function getJobs(resumeId: number) {
+  try {
+    const jobs = await prisma.job.findMany({
+      where: {
+        userid: JSON.stringify(resumeId),
+      },
+    });
+    return jobs;
+  } catch (error) {
+    console.error("Error fetching jobs:", error);
   }
 }

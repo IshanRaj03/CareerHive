@@ -5,16 +5,18 @@ import { LampContainer } from "@/components/ui/lamp";
 import { FileUpload } from "@/components/ui/file-upload";
 import { Button } from "@/components/ui/moving-border";
 import axios from "axios";
-// import PdfParse from "pdf-parse";
+import { useUserState } from "@/lib/state";
+
+// What to do next
+// sort out the params and the router things
+// do vector embedding of the resume in the summarization and send the pinecone id also as params to the jobs page
 
 const UploadPage = () => {
   const [files, setFiles] = useState<File[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  // const [error, setError] = useState<string | null>(null);
 
   const handleFileUpload = (uploadedFiles: File[]) => {
     setFiles(uploadedFiles);
-    // console.log(uploadedFiles);
   };
 
   const handleUpload = async () => {
@@ -27,19 +29,23 @@ const UploadPage = () => {
 
     try {
       setIsLoading(true);
-      // setError(null);
 
       const data = new FormData();
       data.set("file", file);
 
-      const res = await axios.post("/api/summarize", data);
+      const res = await axios.post<{ name: string; message: string }>(
+        "/api/summarize",
+        data
+      );
 
       if (res.status === 200) {
+        const data = res.data;
+        const { setUserName } = useUserState();
+        setUserName(data.name || "User");
         setIsLoading(false);
       }
     } catch (err) {
       console.error("Error preparing file:", err);
-      // setError("An error occurred while preparing the file.");
       setIsLoading(false);
     }
   };
