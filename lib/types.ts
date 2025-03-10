@@ -29,14 +29,14 @@ export type Job = {
 export type Jobs = Job[];
 
 export type ResumeSummary = {
-  name?: string;
-  email?: string;
-  phone?: string;
-  skills?: string[];
-  education?: { degree: string; institution: string; year: string }[];
-  workExperience?: { company: string; position: string; duration: string }[];
-  certifications?: string[];
-  experienceLevel: string;
+  Name?: string;
+  Email?: string;
+  Phone?: string;
+  Skills?: string[];
+  Education?: { degree: string; institution: string; year: string }[];
+  Work_Experience?: { company: string; position: string; duration: string }[];
+  Certifications?: string[];
+  Experience_Level: string;
   keyword: string;
   location: string;
 };

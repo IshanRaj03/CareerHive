@@ -20,13 +20,13 @@ export async function POST(req: NextRequest) {
 
     const fetchJobsWithLocation = await fetchjobswithlocation({
       keyword: summary.keyword,
-      experienceLevel: summary.experienceLevel,
+      experienceLevel: summary.Experience_Level,
       location: summary.location,
     });
 
     const fetchJobsWithoutLocation = await fetchjobswithoutlocation({
       keyword: summary.keyword,
-      experienceLevel: summary.experienceLevel,
+      experienceLevel: summary.Experience_Level,
     });
 
     const jobs = [
@@ -44,10 +44,21 @@ export async function POST(req: NextRequest) {
     }
 
     const allJobs: JobsDB = (await getJobs(resumeId)) || [];
-    await createPineCone(resumeEmbeddings, summary, allJobs);
+    const dataForSimilarity = await createPineCone(
+      resumeEmbeddings,
+      summary,
+      summary.Name || "unknown",
+      allJobs
+    );
+
+    if (!dataForSimilarity) {
+      throw new Error("Failed to create data for similarity");
+    }
 
     return NextResponse.json({
-      name: summary.name,
+      name: summary.Name,
+      namespaceID: dataForSimilarity.namespaceID,
+      submissionId: dataForSimilarity.submissionId,
       message: "Your Resume is successfully precessed",
     });
   } catch (error) {

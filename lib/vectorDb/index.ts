@@ -5,6 +5,7 @@ import { pc } from "@/lib/db";
 import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
 import { JobsDB, JobDb } from "../types";
 import { updatePineConeId } from "@/lib/database/index";
+import { NextResponse } from "next/server";
 
 export async function createResumeEmbedding(resume: ResumeSummary) {
   const embeddings = new GoogleGenerativeAIEmbeddings({
@@ -55,87 +56,14 @@ async function createJobEmbedding(job: JobDb) {
   }
 }
 
-// export async function createPineCone(
-//   resumeEmbeddings: number[],
-//   resume: ResumeSummary,
-//   jobs: JobsDB
-// ) {
-//   let checkIndex = await pc.listIndexes();
-//   let index = null;
-//   if (
-//     !checkIndex.indexes?.findIndex((i) => i.name === "Resume-Jobs-CareerHive")
-//   ) {
-//     await pc.createIndex({
-//       name: "Resume-Jobs-CareerHive",
-//       dimension: 768,
-//       metric: "cosine",
-//       spec: {
-//         serverless: {
-//           cloud: "aws",
-//           region: "us-east-1",
-//         },
-//       },
-//     });
-//     index = pc.Index("Resume-Jobs-CareerHive");
-//   } else {
-//     index = pc.Index("Resume-Jobs-CareerHive");
-//   }
-
-//   const randomNumber = Math.floor(Math.random() * 100000000);
-//   const namespaceID = `Resume-Jobs-${resume.name}`;
-//   const vectorResumeId = `${randomNumber}-${resume.name}`;
-
-//   try {
-//     console.log("Saving resume embeddings...");
-
-//     await index.namespace(namespaceID).upsert([
-//       {
-//         id: vectorResumeId,
-//         values: resumeEmbeddings,
-//         metadata: {
-//           resume: JSON.stringify(resume),
-//         },
-//       },
-//     ]);
-//     console.log("Resume embeddings saved successfully.");
-//   } catch (error) {
-//     console.error("Error saving resume embeddings:", error);
-//   }
-
-//   try {
-//     console.log("Saving job embeddings...");
-
-//     jobs.map(async (job) => {
-//       const vectorJobId = `${randomNumber}-${job.id}`;
-//       await updatePineConeId(job.id, vectorJobId);
-//       const embeddings = await createJobEmbedding(job);
-//       if (embeddings) {
-//         await index.namespace(namespaceID).upsert([
-//           {
-//             id: vectorJobId,
-//             values: embeddings,
-//             metadata: {
-//               job: JSON.stringify(job),
-//             },
-//           },
-//         ]);
-//       } else {
-//         console.error("Failed to create job embeddings for job:", job);
-//       }
-//     });
-//     console.log("Job embeddings saved successfully.");
-//   } catch (error) {
-//     console.error("Error saving job embeddings:", error);
-//   }
-// }
-
 export async function createPineCone(
   resumeEmbeddings: number[],
   resume: ResumeSummary,
+  name: string,
   jobs: JobsDB
 ) {
   try {
-    const indexName = "resume-jobs-careerhive"; // ✅ Lowercase, valid name
+    const indexName = "resume-jobs-careerhive";
 
     let checkIndex = await pc.listIndexes();
     const indexExists = checkIndex.indexes?.some((i) => i.name === indexName);
@@ -154,29 +82,50 @@ export async function createPineCone(
         },
       });
 
-      // Wait until the index is ready
       let isReady = false;
       while (!isReady) {
         console.log("Waiting for Pinecone index to be ready...");
-        await new Promise((resolve) => setTimeout(resolve, 5000)); // Wait 5 seconds
+        await new Promise((resolve) => setTimeout(resolve, 5000));
         const updatedIndexes = await pc.listIndexes();
         isReady = updatedIndexes.indexes
           ? updatedIndexes.indexes.some((i) => i.name === indexName)
           : false;
       }
-      console.log("✅ Pinecone index is ready!");
+      console.log("Pinecone index is ready!");
     }
 
     const index = pc.Index(indexName);
-
-    const randomNumber = Math.floor(Math.random() * 100000000);
-    const sanitizedResumeName = resume.name
-      ? resume.name.replace(/\s+/g, "-").toLowerCase()
-      : "unknown-resume"; // ✅ Replace spaces, lowercase
+    const sanitizedResumeName = name.replace(/\s+/g, "-").toLowerCase();
     const namespaceID = `resume-jobs-${sanitizedResumeName}`;
-    const vectorResumeId = `${randomNumber}-${sanitizedResumeName}`;
 
-    // Save Resume Embeddings
+    try {
+      console.log(
+        `Deleting embeddings older than a day in namespace: ${namespaceID}...`
+      );
+      const oneDaysAgo = Date.now() - 24 * 60 * 60 * 1000;
+
+      // Fetch metadata to identify old embeddings
+      const namespaceData = await index.fetch(["*"]);
+      const oldVectorIds = Object.entries(namespaceData.records)
+        .filter(([_, record]) => {
+          const timestamp = Number(record.metadata?.timestamp);
+          return !isNaN(timestamp) && timestamp < oneDaysAgo;
+        })
+        .map(([id]) => id);
+
+      if (oldVectorIds.length > 0) {
+        await index.namespace(namespaceID).deleteMany(oldVectorIds);
+        console.log(`Deleted ${oldVectorIds.length} old embeddings.`);
+      } else {
+        console.log("No old embeddings found.");
+      }
+    } catch (error) {
+      console.error("Error deleting old embeddings:", error);
+    }
+
+    const submissionId = Math.floor(Math.random() * 100000000);
+    const vectorResumeId = `${submissionId}-${sanitizedResumeName}`;
+
     try {
       console.log("Saving resume embeddings...");
       await index.namespace(namespaceID).upsert([
@@ -185,22 +134,23 @@ export async function createPineCone(
           values: resumeEmbeddings,
           metadata: {
             resume: JSON.stringify(resume),
+            timestamp: Date.now(), // Store timestamp
           },
         },
       ]);
-      console.log("✅ Resume embeddings saved successfully.");
+      console.log("Resume embeddings saved successfully.");
     } catch (error) {
-      console.error("❌ Error saving resume embeddings:", error);
+      console.error("Error saving resume embeddings:", error);
       return;
     }
 
-    // Save Job Embeddings
     try {
       console.log("Saving job embeddings...");
       for (const job of jobs) {
-        const vectorJobId = `${randomNumber}-${job.id}`;
+        const vectorJobId = `${submissionId}-${job.id}`;
         await updatePineConeId(job.id, vectorJobId);
         const embeddings = await createJobEmbedding(job);
+
         if (embeddings) {
           await index.namespace(namespaceID).upsert([
             {
@@ -208,18 +158,23 @@ export async function createPineCone(
               values: embeddings,
               metadata: {
                 job: JSON.stringify(job),
+                timestamp: Date.now(), // Store timestamp
               },
             },
           ]);
         } else {
-          console.error("❌ Failed to create job embeddings for job:", job);
+          console.error(`Failed to create embeddings for job ${job.id}`);
         }
       }
-      console.log("✅ Job embeddings saved successfully.");
+      console.log("Job embeddings saved successfully.");
     } catch (error) {
-      console.error("❌ Error saving job embeddings:", error);
+      console.error("Error saving job embeddings:", error);
     }
+    return {
+      namespaceID,
+      submissionId,
+    };
   } catch (error) {
-    console.error("❌ Unexpected error in createPineCone:", error);
+    console.error("Unexpected error in createPineCone:", error);
   }
 }

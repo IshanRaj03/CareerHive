@@ -44,16 +44,15 @@ export async function summarizeText(text: string): Promise<ResumeSummary> {
       `Extract and summarize the following details from the resume:
     - Name
     - Email
-    - Phone Number
+    - Phone
     - Skills
     - Education (degree, institution, year)
-    - Work Experience (company, position, duration)
+    - Work_Experience (company, position, duration)
     - Certifications
-    - Experience Level
+    - Experience_Level
     - keyword
     - location
     
-
     The Experience Level and Location should not be null, experience level should be one of the following: internship, entry level, associate, senior, director, executive.
     
     If you find that the user who's resume you are summarizing is a student, i.e he/she is still in college in their 2nd or 3rd year, and you can get the duration of course from the degree or assume 4 years, then the experience level should be internship.
@@ -63,7 +62,8 @@ export async function summarizeText(text: string): Promise<ResumeSummary> {
     The location should be the country of the person, you can get the location from the educational institute or the work experience, and also I should not be null.
 
     Resume text will be provided in the next message.
-    Provide the output as structured JSON format.
+    Provide the output as structured JSON format and make sure to name the keys exactly as mentioned above.
+
     `,
     ],
     ["human", text],

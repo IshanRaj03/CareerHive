@@ -14,6 +14,13 @@ import { useUserState } from "@/lib/state";
 const UploadPage = () => {
   const [files, setFiles] = useState<File[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const {
+    setUserName,
+    setParametersForSimilarity,
+    userName,
+    namespaceID,
+    submissionId,
+  } = useUserState();
 
   const handleFileUpload = (uploadedFiles: File[]) => {
     setFiles(uploadedFiles);
@@ -33,15 +40,17 @@ const UploadPage = () => {
       const data = new FormData();
       data.set("file", file);
 
-      const res = await axios.post<{ name: string; message: string }>(
-        "/api/summarize",
-        data
-      );
+      const res = await axios.post<{
+        name: string;
+        message: string;
+        namespaceID: string;
+        submissionId: number;
+      }>("/api/summarize", data);
 
       if (res.status === 200) {
         const data = res.data;
-        const { setUserName } = useUserState();
         setUserName(data.name || "User");
+        setParametersForSimilarity(data.namespaceID, data.submissionId);
         setIsLoading(false);
       }
     } catch (err) {

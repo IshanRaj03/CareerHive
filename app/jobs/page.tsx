@@ -2,8 +2,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { LampContainer } from "@/components/ui/lamp";
-import { FileUpload } from "@/components/ui/file-upload";
-import { Button } from "@/components/ui/moving-border";
+
 import axios from "axios";
 
 const JobsPage = () => {
