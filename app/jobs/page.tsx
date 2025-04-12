@@ -34,7 +34,7 @@ const JobsPage = () => {
 
         if (res.status === 200) {
           // console.log("Jobs:", res.data);
-          setJobs(res.data.similarJobs);
+          setJobs(res.data.similarJobs || []);
           // console.log("setJobs:", jobs);
         }
       } catch (error) {
@@ -73,7 +73,7 @@ const JobsPage = () => {
 
   const indexOfLastJob = currentPage * jobsPerPage;
   const indexOfFirstJob = indexOfLastJob - jobsPerPage;
-  const currentJobs = jobs.slice(indexOfFirstJob, indexOfLastJob);
+  const currentJobs = (jobs || []).slice(indexOfFirstJob, indexOfLastJob);
   const totalPages = Math.ceil(jobs.length / jobsPerPage);
 
   const goToNextPage = () => {
