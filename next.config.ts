@@ -12,6 +12,8 @@ const nextConfig: NextConfig = {
         hostname: "static.licdn.com",
       },
     ],
+    dangerouslyAllowSVG: true, // Required for SVG files
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;", // Security measure
   },
 };
 
