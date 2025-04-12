@@ -188,7 +188,7 @@ const JobsPage = () => {
                         <div className="mb-4">
                           <div className="flex items-start gap-4">
                             {/* Company logo */}
-                            <div className="h-12 w-12 flex-shrink-0 bg-gray-700 rounded-md overflow-hidden">
+                            <div className="relative h-12 w-12 flex-shrink-0 bg-gray-700 rounded-md overflow-hidden">
                               {job.companyLogo ? (
                                 <Image
                                   src={job.companyLogo}
