@@ -5,7 +5,6 @@ import { pc } from "@/lib/db";
 import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
 import { JobsDB, JobDb } from "../types";
 import { updatePineConeId } from "@/lib/database/index";
-import { NextResponse } from "next/server";
 
 export async function createResumeEmbedding(resume: ResumeSummary) {
   const embeddings = new GoogleGenerativeAIEmbeddings({
@@ -65,7 +64,7 @@ export async function createPineCone(
   try {
     const indexName = "resume-jobs-careerhive";
 
-    let checkIndex = await pc.listIndexes();
+    const checkIndex = await pc.listIndexes();
     const indexExists = checkIndex.indexes?.some((i) => i.name === indexName);
 
     if (!indexExists) {
@@ -107,7 +106,7 @@ export async function createPineCone(
       // Fetch metadata to identify old embeddings
       const namespaceData = await index.fetch(["*"]);
       const oldVectorIds = Object.entries(namespaceData.records)
-        .filter(([_, record]) => {
+        .filter(([, record]) => {
           const timestamp = Number(record.metadata?.timestamp);
           return !isNaN(timestamp) && timestamp < oneDaysAgo;
         })

@@ -7,6 +7,7 @@ import { useUserState } from "@/lib/state";
 import { SimilarJob } from "@/lib/types";
 import { ArrowLeftCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const JobsPage = () => {
   const [jobs, setJobs] = useState<SimilarJob[]>([]);
@@ -32,9 +33,9 @@ const JobsPage = () => {
         );
 
         if (res.status === 200) {
-          console.log("Jobs:", res.data);
+          // console.log("Jobs:", res.data);
           setJobs(res.data.similarJobs);
-          console.log("setJobs:", jobs);
+          // console.log("setJobs:", jobs);
         }
       } catch (error) {
         console.error("Error fetching jobs:", error);
@@ -44,7 +45,7 @@ const JobsPage = () => {
     };
 
     fetchSimilarJobs();
-  }, [namespaceID, submissionId]);
+  }, [namespaceID, submissionId, userName]);
 
   const cardVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -183,20 +184,38 @@ const JobsPage = () => {
                       className="bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-blue-900/20 hover:shadow-xl transition-all duration-300 border border-gray-700 flex flex-col"
                     >
                       <div className="p-6 flex flex-col h-full">
-                        {/* Job header - fixed height */}
+                        {/* Job header with better alignment */}
                         <div className="mb-4">
-                          <div className="h-16 mb-2">
-                            <h2 className="text-xl font-bold text-gray-100 line-clamp-2">
-                              {job.position}
-                            </h2>
-                          </div>
-                          <div className="text-gray-400 mb-1 flex flex-col justify-between items-start">
-                            <span className="text-base text-gray-300 md:text-lg block">
-                              {job.company}
-                            </span>
-                            <span className="text-sm md:text-base">
-                              {job.location}
-                            </span>
+                          <div className="flex items-start gap-4">
+                            {/* Company logo */}
+                            <div className="h-12 w-12 flex-shrink-0 bg-gray-700 rounded-md overflow-hidden">
+                              {job.companyLogo ? (
+                                <Image
+                                  src={job.companyLogo}
+                                  alt={`${job.company} logo`}
+                                  fill
+                                  sizes="48px"
+                                  className="object-contain"
+                                />
+                              ) : (
+                                <div className="h-full w-full flex items-center justify-center bg-gray-700 text-gray-500">
+                                  {job.company?.charAt(0) || "C"}
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Job details - everything aligned to the start */}
+                            <div className="flex flex-col items-start gap-1">
+                              <h2 className="text-xl text-left font-bold text-gray-100">
+                                {job.position}
+                              </h2>
+                              <span className="text-base text-gray-300 md:text-lg">
+                                {job.company}
+                              </span>
+                              <span className="text-sm md:text-base text-gray-400">
+                                {job.location}
+                              </span>
+                            </div>
                           </div>
                         </div>
 

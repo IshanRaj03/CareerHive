@@ -12,13 +12,7 @@ const UploadPage = () => {
   const router = useRouter();
   const [files, setFiles] = useState<File[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const {
-    setUserName,
-    setParametersForSimilarity,
-    userName,
-    namespaceID,
-    submissionId,
-  } = useUserState();
+  const { setUserName, setParametersForSimilarity } = useUserState();
 
   const handleFileUpload = (uploadedFiles: File[]) => {
     setFiles(uploadedFiles);
@@ -74,7 +68,7 @@ const UploadPage = () => {
           <FileUpload onChange={handleFileUpload} />
           <Button
             borderRadius="1.75rem"
-            className=" bg-black text-xl text-white border-neutral-800 "
+            className=" bg-black text-base text-white border-neutral-800 "
             onClick={handleUpload}
             disabled={isLoading}
           >

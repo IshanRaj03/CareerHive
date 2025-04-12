@@ -1,3 +1,4 @@
+/* eslint-disable */
 const linkedIn = require("linkedin-jobs-api");
 
 type LinkedInJob = {
