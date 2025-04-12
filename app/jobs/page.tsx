@@ -206,10 +206,10 @@ const JobsPage = () => {
 
                             {/* Job details - everything aligned to the start */}
                             <div className="flex flex-col items-start gap-1">
-                              <h2 className="text-xl text-left font-bold text-gray-100">
+                              <h2 className="text-xl text-left font-bold text-gray-100 line-clamp-2">
                                 {job.position}
                               </h2>
-                              <span className="text-base text-gray-300 md:text-lg">
+                              <span className="text-base text-gray-300 md:text-lg line-clamp-1">
                                 {job.company}
                               </span>
                               <span className="text-sm md:text-base text-gray-400">
