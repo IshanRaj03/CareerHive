@@ -10,7 +10,7 @@ export default function Home() {
             discover opportunities that fit your career goals.`;
 
   return (
-    <BackgroundLines className="flex items-center justify-center w-full flex-col px-4 bg-black">
+    <BackgroundLines className="flex items-center justify-center w-full flex-col h-[100vh] px-4 bg-black">
       <div className="grid md:grid-cols-2 gird-cols-1 m-20">
         <div className="">
           <h2 className="bg-clip-text text-transparent text-center bg-gray-300 from-neutral-900 to-neutral-700 dark:from-neutral-600 dark:to-white text-2xl md:text-4xl lg:text-7xl font-sans py-1 md:py-5 relative z-20 font-bold tracking-tight">
@@ -20,7 +20,7 @@ export default function Home() {
             Find Jobs Faster, Smarter, and Hassle-Free
           </p>
         </div>
-        <div className="m-auto max-w-xl">
+        <div className="m-auto text-sm text-center md:text-left md:text-xl max-w-xl">
           <TextGenerateEffect words={words} />
         </div>
       </div>
