@@ -22,7 +22,7 @@ export async function POST(req: Request) {
       .replace(/\s+/g, "-")
       .toLowerCase()}`;
 
-    // 🔹 Step 1: Retrieve the resume embedding from Pinecone
+    // Retrieve the resume embedding from Pinecone
     const fetchResult = await index
       .namespace(namespaceID)
       .fetch([resumeVectorId]);
@@ -38,7 +38,7 @@ export async function POST(req: Request) {
 
     const resumeEmbedding = fetchResult.records[resumeVectorId].values;
 
-    // 🔹 Step 2: Query Pinecone for similar jobs using the retrieved embedding
+    // Query Pinecone for similar jobs using the retrieved embedding
     const queryResult = await index.namespace(namespaceID).query({
       topK: 20,
       includeMetadata: true,
@@ -60,8 +60,8 @@ export async function POST(req: Request) {
       .map((match) => {
         try {
           if (match.metadata && typeof match.metadata.job === "string") {
-            const jobMetadata = JSON.parse(match.metadata.job); // Parse job metadata
-            return jobMetadata.id; // Extract PostgreSQL job ID
+            const jobMetadata = JSON.parse(match.metadata.job);
+            return jobMetadata.id;
           } else {
             console.error("Invalid or missing job metadata:", match.metadata);
             return null;
@@ -74,7 +74,7 @@ export async function POST(req: Request) {
       .filter((id): id is string => id !== null);
 
     console.log("Job IDs:", jobIds);
-    // 🔹 Step 3: Fetch job details from PostgreSQL
+    // Fetch job details from PostgreSQL
     const jobs = await fetchJobsByIds(jobIds);
 
     const similarJobs: SimilarJob[] = (jobs || []).map((job) => ({
@@ -82,12 +82,12 @@ export async function POST(req: Request) {
       position: job.position,
       company: job.company,
       location: job.location,
-      date: job.jobPostedDate, // Map backend field
-      agoTime: job.jobAgoTime, // Map backend field
+      date: job.jobPostedDate,
+      agoTime: job.jobAgoTime,
       salary: job.salary || "Salary not disclosed",
       jobUrl: job.jobUrl,
-      companyLogo: job.companyLogo || "", // Ensure companyLogo is always a string
-      description: job.description || "", // Ensure description is always a string
+      companyLogo: job.companyLogo || "",
+      description: job.description || "",
     }));
 
     return NextResponse.json({ similarJobs });

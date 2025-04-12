@@ -1,16 +1,21 @@
 "use client";
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { LampContainer } from "@/components/ui/lamp";
 import axios from "axios";
 import { useUserState } from "@/lib/state";
-import { Job, Jobs } from "@/lib/types";
-import { SimilarJob, SimilarJobs } from "@/lib/types";
+import { SimilarJob } from "@/lib/types";
+import { ArrowLeftCircle, ChevronLeft, ChevronRight } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const JobsPage = () => {
   const [jobs, setJobs] = useState<SimilarJob[]>([]);
   const [loading, setLoading] = useState(true);
   const { namespaceID, submissionId, userName } = useUserState();
+  const router = useRouter();
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const jobsPerPage = 6;
 
   useEffect(() => {
     const fetchSimilarJobs = async () => {
@@ -28,7 +33,6 @@ const JobsPage = () => {
 
         if (res.status === 200) {
           console.log("Jobs:", res.data);
-          const data = res.data || [];
           setJobs(res.data.similarJobs);
           console.log("setJobs:", jobs);
         }
@@ -66,6 +70,70 @@ const JobsPage = () => {
     return `${diffDays} days ago`;
   };
 
+  const indexOfLastJob = currentPage * jobsPerPage;
+  const indexOfFirstJob = indexOfLastJob - jobsPerPage;
+  const currentJobs = jobs.slice(indexOfFirstJob, indexOfLastJob);
+  const totalPages = Math.ceil(jobs.length / jobsPerPage);
+
+  const goToNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  const goToPreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  const goToPage = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const getPageNumbers = () => {
+    const pageNumbers = [];
+    const maxPagesToShow = 5;
+
+    if (totalPages <= maxPagesToShow) {
+      for (let i = 1; i <= totalPages; i++) {
+        pageNumbers.push(i);
+      }
+    } else {
+      if (currentPage > 3) {
+        pageNumbers.push(1);
+        if (currentPage > 4) {
+          pageNumbers.push("...");
+        }
+      }
+
+      let start = Math.max(1, currentPage - 1);
+      let end = Math.min(totalPages, currentPage + 1);
+
+      if (currentPage <= 2) {
+        end = Math.min(maxPagesToShow - 1, totalPages);
+      } else if (currentPage >= totalPages - 1) {
+        start = Math.max(1, totalPages - maxPagesToShow + 2);
+      }
+
+      for (let i = start; i <= end; i++) {
+        pageNumbers.push(i);
+      }
+
+      if (currentPage < totalPages - 2) {
+        if (currentPage < totalPages - 3) {
+          pageNumbers.push("...");
+        }
+        pageNumbers.push(totalPages);
+      }
+    }
+
+    return pageNumbers;
+  };
+
   return (
     <LampContainer>
       <motion.h1
@@ -76,12 +144,24 @@ const JobsPage = () => {
       >
         <div className="w-full mt-20 px-4 py-12 bg-gray-900 min-h-screen rounded-xl">
           <div className="max-w-7xl mx-auto">
-            <h1 className="text-3xl md:text-5xl font-bold text-center mb-2 text-gray-100">
-              Recommended Jobs
-            </h1>
-            <p className="text-center text-gray-400 mb-10">
-              Based on your profile and experience
-            </p>
+            <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+              <div className="text-center md:text-left px-3">
+                <h1 className="text-3xl md:text-5xl font-bold text-gray-100">
+                  Recommended Jobs
+                </h1>
+                <p className="text-gray-400 mt-2">
+                  Based on your profile and experience
+                </p>
+              </div>
+
+              <button
+                onClick={() => router.push("/upload")}
+                className="flex items-center gap-2 px-6 py-3 text-gray-300 hover:text-blue-400 transition-colors duration-300 border border-gray-600 rounded-lg hover:border-blue-400"
+              >
+                <ArrowLeftCircle className="h-5 w-5" />
+                Back to Upload
+              </button>
+            </div>
 
             {loading ? (
               <div className="flex justify-center items-center h-64">
@@ -91,66 +171,118 @@ const JobsPage = () => {
                 </div>
               </div>
             ) : jobs.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {jobs.map((job, index) => (
-                  <motion.div
-                    key={index}
-                    custom={index}
-                    initial="hidden"
-                    animate="visible"
-                    variants={cardVariants}
-                    className="bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-blue-900/20 hover:shadow-xl transition-all duration-300 border border-gray-700"
-                  >
-                    <div className="p-6">
-                      <div className="flex flex-col justify-between items-start mb-4 gap-2">
-                        <h2 className="text-lg md:text-xl font-bold text-gray-100 mb-1 line-clamp-2">
-                          {job.position}
-                        </h2>
-                        <div className="text-gray-400 gap-1 md:text-base flex flex-col justify-between items-start">
-                          <span className="text-base text-gray-300 md:text-lg">
-                            {job.company}
-                          </span>
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-2">
+                  {currentJobs.map((job, index) => (
+                    <motion.div
+                      key={index}
+                      custom={index}
+                      initial="hidden"
+                      animate="visible"
+                      variants={cardVariants}
+                      className="bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-blue-900/20 hover:shadow-xl transition-all duration-300 border border-gray-700 flex flex-col"
+                    >
+                      <div className="p-6 flex flex-col h-full">
+                        {/* Job header - fixed height */}
+                        <div className="mb-4">
+                          <div className="h-16 mb-2">
+                            <h2 className="text-xl font-bold text-gray-100 line-clamp-2">
+                              {job.position}
+                            </h2>
+                          </div>
+                          <div className="text-gray-400 mb-1 flex flex-col justify-between items-start">
+                            <span className="text-base text-gray-300 md:text-lg block">
+                              {job.company}
+                            </span>
+                            <span className="text-sm md:text-base">
+                              {job.location}
+                            </span>
+                          </div>
+                        </div>
 
-                          <span className="text-sm md:text-base">
-                            {job.location}
-                          </span>
+                        <div className="mb-4 mt-auto">
+                          <div className="flex items-center text-gray-300 gap-2 mb-2">
+                            <span className="text-gray-400">Salary:</span>
+                            <span className="font-medium line-clamp-1">
+                              {job.salary === "Not specified"
+                                ? "Salary not disclosed"
+                                : job.salary}
+                            </span>
+                          </div>
+                          <div className="flex items-center text-gray-500 text-sm">
+                            <span>
+                              {job.agoTime || calculateAgoTime(job.date)} •
+                              Posted on{" "}
+                              {new Date(job.date).toLocaleDateString("en-US", {
+                                year: "numeric",
+                                month: "short",
+                                day: "numeric",
+                              })}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex justify-end items-center mt-auto">
+                          <button
+                            className="bg-blue-600 hover:bg-blue-500 text-gray-100 py-2 px-4 rounded-lg font-medium transition-colors duration-300"
+                            onClick={() => window.open(job.jobUrl, "_blank")}
+                          >
+                            View Job
+                          </button>
                         </div>
                       </div>
+                    </motion.div>
+                  ))}
+                </div>
 
-                      <div className="mb-4">
-                        <div className="flex items-center text-gray-300 gap-2 mb-2">
-                          <span className="text-gray-400">Salary:</span>
-                          <span className="font-medium">
-                            {job.salary === "Not specified"
-                              ? "Salary not disclosed"
-                              : job.salary}
-                          </span>
-                        </div>
-                        <div className="flex items-center text-gray-500 text-sm">
-                          <span>
-                            {job.agoTime || calculateAgoTime(job.date)} • Posted
-                            on{" "}
-                            {new Date(job.date).toLocaleDateString("en-US", {
-                              year: "numeric",
-                              month: "short",
-                              day: "numeric",
-                            })}
-                          </span>
-                        </div>
-                      </div>
+                {totalPages > 1 && (
+                  <div className="flex justify-center items-center mt-10 mb-4">
+                    <nav className="flex items-center gap-1">
+                      <button
+                        onClick={goToPreviousPage}
+                        disabled={currentPage === 1}
+                        className={`p-2 rounded-md ${
+                          currentPage === 1
+                            ? "text-gray-600 cursor-not-allowed"
+                            : "text-gray-300 hover:bg-gray-800 hover:text-blue-400"
+                        }`}
+                      >
+                        <ChevronLeft className="h-5 w-5" />
+                      </button>
 
-                      <div className="flex justify-end items-center">
+                      {getPageNumbers().map((page, index) => (
                         <button
-                          className="bg-blue-600 hover:bg-blue-500 text-gray-100 py-2 px-4 rounded-lg font-medium transition-colors duration-300"
-                          onClick={() => window.open(job.jobUrl, "_blank")}
+                          key={index}
+                          onClick={() =>
+                            typeof page === "number" && goToPage(page)
+                          }
+                          className={`px-3 py-1 rounded-md ${
+                            page === currentPage
+                              ? "bg-blue-600 text-white"
+                              : page === "..."
+                              ? "text-gray-400 cursor-default"
+                              : "text-gray-300 hover:bg-gray-800 hover:text-blue-400"
+                          }`}
                         >
-                          View Job
+                          {page}
                         </button>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
+                      ))}
+
+                      <button
+                        onClick={goToNextPage}
+                        disabled={currentPage === totalPages}
+                        className={`p-2 rounded-md ${
+                          currentPage === totalPages
+                            ? "text-gray-600 cursor-not-allowed"
+                            : "text-gray-300 hover:bg-gray-800 hover:text-blue-400"
+                        }`}
+                      >
+                        <ChevronRight className="h-5 w-5" />
+                      </button>
+                    </nav>
+                  </div>
+                )}
+              </>
             ) : (
               <div className="bg-gray-800 rounded-xl p-10 shadow text-center border border-gray-700">
                 <svg
