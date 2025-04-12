@@ -40,7 +40,7 @@ async function createJobEmbedding(job: JobDb) {
       position: job.position,
       company: job.company,
       location: job.location,
-      description: job.description,
+      // description: job.description,
     };
     const response = await embeddings.embedQuery(
       JSON.stringify(requiredfields)
@@ -134,7 +134,9 @@ export async function createPineCone(
           values: resumeEmbeddings,
           metadata: {
             resume: JSON.stringify(resume),
-            timestamp: Date.now(), // Store timestamp
+            timestamp: Date.now(),
+            submissionId: submissionId,
+            type: "resume",
           },
         },
       ]);
@@ -158,7 +160,9 @@ export async function createPineCone(
               values: embeddings,
               metadata: {
                 job: JSON.stringify(job),
-                timestamp: Date.now(), // Store timestamp
+                timestamp: Date.now(),
+                submissionId: submissionId,
+                type: "job",
               },
             },
           ]);

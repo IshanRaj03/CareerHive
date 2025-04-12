@@ -71,10 +71,3 @@ export async function POST(req: NextRequest) {
     );
   }
 }
-
-// What to do next
-
-// 1. The Embeddings are not getting stored in pinecone so work on that
-// 2. Use Redis for caching the user name for the jobs page.
-// 3. Build the job page after that.
-// 4. Find the matching jobs for the user.

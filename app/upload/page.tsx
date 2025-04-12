@@ -6,12 +6,10 @@ import { FileUpload } from "@/components/ui/file-upload";
 import { Button } from "@/components/ui/moving-border";
 import axios from "axios";
 import { useUserState } from "@/lib/state";
-
-// What to do next
-// sort out the params and the router things
-// do vector embedding of the resume in the summarization and send the pinecone id also as params to the jobs page
+import { useRouter } from "next/navigation";
 
 const UploadPage = () => {
+  const router = useRouter();
   const [files, setFiles] = useState<File[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const {
@@ -52,6 +50,7 @@ const UploadPage = () => {
         setUserName(data.name || "User");
         setParametersForSimilarity(data.namespaceID, data.submissionId);
         setIsLoading(false);
+        router.push("/jobs");
       }
     } catch (err) {
       console.error("Error preparing file:", err);
@@ -79,7 +78,7 @@ const UploadPage = () => {
             onClick={handleUpload}
             disabled={isLoading}
           >
-            {isLoading ? "Processing your resume....." : "Upload"}
+            {isLoading ? `Processing your resume (10-15 sec)` : "Upload"}
           </Button>
         </div>
       </motion.h1>

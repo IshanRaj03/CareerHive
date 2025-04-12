@@ -28,6 +28,21 @@ export type Job = {
 };
 export type Jobs = Job[];
 
+export type SimilarJob = {
+  id: string;
+  position: string;
+  company: string;
+  location: string;
+  date: string; // Matches frontend expectations
+  agoTime: string; // Matches frontend expectations
+  salary: string;
+  jobUrl: string;
+  companyLogo: string;
+  description?: string;
+};
+
+export type SimilarJobs = SimilarJob[];
+
 export type ResumeSummary = {
   Name?: string;
   Email?: string;
