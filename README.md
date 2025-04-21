@@ -5,6 +5,11 @@
 
 An intelligent job recommendation platform that analyzes resumes using AI and matches candidates with perfect career opportunities. Built with modern web technologies and designed for the future of hiring.
 
+## Architecture
+![ChatGPT Image Apr 21, 2025, 02_55_11 PM](https://github.com/user-attachments/assets/d365a2ae-2760-431b-94ca-6e06a991d20d)
+
+The user uploads a resume via the frontend, LangChain extracts its text and Gemini AI generates a summary and search parameters for the Linkedin API. The system queries the LinkedIn API for matching positions (stored in PostgreSQL), then creates vector embeddings of both resume and job data, saves them in Pinecone, and uses cosine similarity to surface the best job matches back to the user.
+
 ## 🌟 Features
 
 ### Resume Processing
