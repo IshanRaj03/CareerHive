@@ -38,21 +38,51 @@ export async function POST(req: Request) {
 
     const resumeEmbedding = fetchResult.records[resumeVectorId].values;
 
-    // Query Pinecone for similar jobs using the retrieved embedding
-    const queryResult = await index.namespace(namespaceID).query({
-      topK: 20,
-      includeMetadata: true,
-      vector: resumeEmbedding,
-      filter: {
-        $and: [
-          { type: { $eq: "job" } },
-          { submissionId: { $eq: submissionId } },
-        ],
-      },
-    });
+    const maxAttempts = 10;
+    const delay = 2000;
+    let attempts = 0;
+    let queryResult;
+
+    while (attempts < maxAttempts) {
+      queryResult = await index.namespace(namespaceID).query({
+        topK: 20,
+        includeMetadata: true,
+        vector: resumeEmbedding,
+        filter: {
+          $and: [
+            { type: { $eq: "job" } },
+            { submissionId: { $eq: submissionId } },
+          ],
+        },
+      });
+      if (queryResult.matches && queryResult.matches.length > 0) {
+        break;
+      }
+      attempts++;
+      console.log(`Polling attempt ${attempts}: No matches found.`);
+
+      await new Promise((resolve) => setTimeout(resolve, delay)); // Wait before retrying
+    }
+
+    // // Query Pinecone for similar jobs using the retrieved embedding
+    // const queryResult = await index.namespace(namespaceID).query({
+    //   topK: 20,
+    //   includeMetadata: true,
+    //   vector: resumeEmbedding,
+    //   filter: {
+    //     $and: [
+    //       { type: { $eq: "job" } },
+    //       { submissionId: { $eq: submissionId } },
+    //     ],
+    //   },
+    // });
     console.log("Query result:", queryResult);
 
-    if (!queryResult.matches || queryResult.matches.length === 0) {
+    if (
+      !queryResult ||
+      !queryResult.matches ||
+      queryResult.matches.length === 0
+    ) {
       return NextResponse.json({ jobs: [] });
     }
 
@@ -77,18 +107,20 @@ export async function POST(req: Request) {
     // Fetch job details from PostgreSQL
     const jobs = await fetchJobsByIds(jobIds);
 
-    const similarJobs: SimilarJob[] = (jobs || []).map((job) => ({
-      id: job.id,
-      position: job.position,
-      company: job.company,
-      location: job.location,
-      date: job.jobPostedDate,
-      agoTime: job.jobAgoTime,
-      salary: job.salary || "Salary not disclosed",
-      jobUrl: job.jobUrl,
-      companyLogo: job.companyLogo || "",
-      description: job.description || "",
-    }));
+    const similarJobs: SimilarJob[] = (jobs || [])
+      .map((job) => ({
+        id: job.id,
+        position: job.position,
+        company: job.company,
+        location: job.location,
+        date: job.jobPostedDate,
+        agoTime: job.jobAgoTime,
+        salary: job.salary || "Salary not disclosed",
+        jobUrl: job.jobUrl,
+        companyLogo: job.companyLogo || "",
+        description: job.description || "",
+      }))
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()); // Sort by date (most recent first)
 
     return NextResponse.json({ similarJobs });
   } catch (error) {

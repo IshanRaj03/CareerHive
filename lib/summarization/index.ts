@@ -57,6 +57,8 @@ export async function summarizeText(text: string): Promise<ResumeSummary> {
     
     If you find that the user who's resume you are summarizing is a student, i.e he/she is still in college in their 2nd or 3rd year, and you can get the duration of course from the degree or assume 4 years, then the experience level should be internship.
     
+    Also if the experience level is not more than 1 year, then the experience level should be internship.
+    
     The keyword is like the field which you need to find from the experience or the projects, like software engineering, data science,full stack developer, frontend developer, backend developer, etc., and also it should not be null.
     
     The location should be the country of the person, you can get the location from the educational institute or the work experience, and also I should not be null.
