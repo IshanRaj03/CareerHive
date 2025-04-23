@@ -60,6 +60,8 @@ export async function summarizeText(text: string): Promise<ResumeSummary> {
     Also if the experience level is not more than 1 year, then the experience level should be internship.
     
     The keyword is like the field which you need to find from the experience or the projects, like software engineering, data science,full stack developer, frontend developer, backend developer, etc., and also it should not be null.
+    Also In the key word there should not be Web Developer, Web Development, Web Design, etc.
+    It should be like software engineering, data science, full stack developer, frontend developer, backend developer, etc.
     
     The location should be the country of the person, you can get the location from the educational institute or the work experience, and also I should not be null.
 
