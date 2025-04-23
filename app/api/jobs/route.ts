@@ -38,7 +38,7 @@ export async function POST(req: Request) {
 
     const resumeEmbedding = fetchResult.records[resumeVectorId].values;
 
-    const maxAttempts = 10;
+    const maxAttempts = 20;
     const delay = 2000;
     let attempts = 0;
     let queryResult;
