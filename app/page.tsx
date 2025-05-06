@@ -9,7 +9,7 @@ import {
   Briefcase,
   Target,
   Clock,
-  Award,
+  // Award,
   ChevronDown,
 } from "lucide-react";
 
