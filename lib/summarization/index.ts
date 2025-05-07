@@ -33,7 +33,7 @@ export async function extractTextFromPDF(formData: FormData): Promise<string> {
 export async function summarizeText(text: string): Promise<ResumeSummary> {
   const llm = new ChatGoogleGenerativeAI({
     model: "gemini-1.5-flash",
-    temperature: 0,
+    temperature: 1,
     apiKey: process.env.GEMINI_API_KEY,
     maxRetries: 5,
   });
